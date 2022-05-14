@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/DiheChen/go-asmr-spider/config"
@@ -74,8 +75,10 @@ func (OAuth2 *OAuth2) GetVoiceTracks(id string) ([]interface{}, error) {
 }
 
 func DownloadFile(url string, dirPath string, fileName string) {
-	for _, str := range []string{"?", "<", ">", ":", "/", "\\", "*", "|"} {
-		fileName = strings.Replace(fileName, str, "_", -1)
+	if runtime.GOOS == "windows" {
+		for _, str := range []string{"?", "<", ">", ":", "/", "\\", "*", "|"} {
+			fileName = strings.Replace(fileName, str, "_", -1)
+		}
 	}
 	client := utils.Client.Get().(*http.Client)
 	fmt.Println("正在下载 " + dirPath + "/" + fileName)
