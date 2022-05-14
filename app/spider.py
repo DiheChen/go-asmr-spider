@@ -2,7 +2,7 @@
  - Author       : DiheChen
  - Date         : 2022-05-14 07:26:07
  - LastEditors  : DiheChen
- - LastEditTime : 2022-05-14 11:02:03
+ - LastEditTime : 2022-05-14 17:49:48
  - Description  : None
  - GitHub       : https://github.com/DiheChen
 """
@@ -91,8 +91,8 @@ class ASMRSpider:
                 logger.error(e)
                 continue
         for folder in folders:
-            makedirs(path.join(root_path, folder["title"]), exist_ok=True)
             new_path = path.join(root_path, folder["title"])
+            makedirs(new_path, exist_ok=True)
             await self.ensure_dir(folder["children"], new_path)
 
     async def download(self, voice_id: str) -> None:
@@ -110,7 +110,7 @@ class ASMRSpider:
             voice_info.pop(key)
         root = path.join("Voice", f"RJ{voice_id}")
         makedirs(root, exist_ok=True)
-        with open(path.join(root, f"RJ{voice_id}.json"), "w") as f:
+        with open(path.join(root, f"RJ{voice_id}.json"), "w", encoding="utf-8") as f:
             json.dump(voice_info, f, ensure_ascii=False, indent=4)
         tracks = await self.get_voice_tracks(voice_id)
         await self.ensure_dir(tracks, root)
