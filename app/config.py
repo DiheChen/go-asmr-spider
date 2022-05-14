@@ -2,7 +2,7 @@
  - Author       : DiheChen
  - Date         : 2022-05-14 08:19:04
  - LastEditors  : DiheChen
- - LastEditTime : 2022-05-14 11:01:09
+ - LastEditTime : 2022-05-15 07:18:12
  - Description  : None
  - GitHub       : https://github.com/DiheChen
 """
@@ -17,8 +17,8 @@ class Config(BaseModel):
 
 
 _config = {
-    "username": "",  # Your username
-    "password": "",  # Your password
+    "username": "guest",  # Your username
+    "password": "guest",  # Your password
     "proxy": "",     # Your magic
 }
 
