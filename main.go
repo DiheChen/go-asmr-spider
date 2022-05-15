@@ -15,7 +15,8 @@ func main() {
 	tasks := strings.Split(strings.TrimSpace(readString), " ")
 	s, err := spider.Login()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("登录失败:", err)
+		return
 	}
 	for _, task := range tasks {
 		s.Download(task)
