@@ -6,7 +6,7 @@
 
 开箱即用, 无需额外配置环境。
 
-1. 前往 [actions](https://github.com/DiheChen/go-asmr-spider/actions) 下载与你操作系统 / 平台对应的可执行文件, 运行一次, 生成默认的配置文件。
+1. 前往 [releases](https://github.com/DiheChen/go-asmr-spider/releases) 下载与你操作系统 / 平台对应的可执行文件, 运行一次, 生成默认的配置文件。
 
 2. 再次运行程序, 输入你要下载的音声的 RJ 号, 如果要下载多个音声用空格隔开。
 
