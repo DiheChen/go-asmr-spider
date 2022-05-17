@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -98,16 +99,23 @@ func DownloadFile(url string, dirPath string, fileName string) {
 		return
 	}
 	defer func() { _ = resp.Body.Close() }()
-	all, err := ioutil.ReadAll(resp.Body)
+	file, err := os.OpenFile(dirPath+"/"+fileName+".temp", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666)
 	if err != nil {
 		fmt.Println("下载"+savePath+"失败: ", err)
 		return
 	}
-	err = os.WriteFile(dirPath+"/"+fileName, all, 0644)
+	_, err = io.Copy(file, resp.Body)
 	if err != nil {
 		fmt.Println("写入"+savePath+"失败: ", err)
 		return
 	}
+	_ = file.Close()
+	err = os.Rename(dirPath+"/"+fileName+".temp", dirPath+"/"+fileName)
+	if err != nil {
+		fmt.Println("重命名"+savePath+"失败: ", err)
+		return
+	}
+	return
 }
 
 func EnsureDir(tracks []interface{}, basePath string) {
