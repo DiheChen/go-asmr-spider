@@ -22,6 +22,16 @@ type OAuth2 struct {
 	Authorization string
 }
 
+type track struct {
+	Type             string  `json:"type"`
+	Title            string  `json:"title"`
+	Children         []track `json:"children,omitempty"`
+	Hash             string  `json:"hash,omitempty"`
+	WorkTitle        string  `json:"workTitle,omitempty"`
+	MediaStreamURL   string  `json:"mediaStreamUrl,omitempty"`
+	MediaDownloadURL string  `json:"mediaDownloadUrl,omitempty"`
+}
+
 func Login() (*OAuth2, error) {
 	payload, err := json.Marshal(map[string]string{
 		"name":     conf.Account,
@@ -53,7 +63,7 @@ func Login() (*OAuth2, error) {
 	return &OAuth2{Authorization: "Bearer " + res["token"]}, nil
 }
 
-func (OAuth2 *OAuth2) GetVoiceTracks(id string) ([]interface{}, error) {
+func (OAuth2 *OAuth2) GetVoiceTracks(id string) ([]track, error) {
 	client := utils.Client.Get().(*http.Client)
 	req, _ := http.NewRequest("GET", "https://api.asmr.one/api/tracks/"+id, nil)
 	req.Header.Set("Authorization", OAuth2.Authorization)
@@ -71,7 +81,7 @@ func (OAuth2 *OAuth2) GetVoiceTracks(id string) ([]interface{}, error) {
 		fmt.Println("获取音声信息失败: ", err)
 		return nil, err
 	}
-	var res []interface{}
+	res := make([]track, 0)
 	err = json.Unmarshal(all, &res)
 	return res, nil
 }
@@ -118,15 +128,14 @@ func DownloadFile(url string, dirPath string, fileName string) {
 	return
 }
 
-func EnsureDir(tracks []interface{}, basePath string) {
+func EnsureDir(tracks []track, basePath string) {
 	path := basePath
 	_ = os.MkdirAll(path, os.ModePerm)
-	for _, track := range tracks {
-		if track.(map[string]interface{})["type"].(string) != "folder" {
-			DownloadFile(track.(map[string]interface{})["mediaDownloadUrl"].(string), path, track.(map[string]interface{})["title"].(string))
+	for _, t := range tracks {
+		if t.Type != "folder" {
+			DownloadFile(t.MediaDownloadURL, path, t.Title)
 		} else {
-			_ = os.MkdirAll(path+"/"+track.(map[string]interface{})["title"].(string), os.ModePerm)
-			EnsureDir(track.(map[string]interface{})["children"].([]interface{}), path+"/"+track.(map[string]interface{})["title"].(string))
+			EnsureDir(t.Children, fmt.Sprintf("%s/%s", path, t.Title))
 		}
 	}
 }
