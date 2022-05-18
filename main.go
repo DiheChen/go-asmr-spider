@@ -16,8 +16,8 @@ var (
 )
 
 func init() {
-	flag.IntVar(&maxTask, "w", 1, "最多同时进行的下载任务")
-	flag.IntVar(&maxThread, "t", 1, "单文件最大线程")
+	flag.IntVar(&maxTask, "w", spider.Conf.MaxTask, "最多同时进行的下载任务")
+	flag.IntVar(&maxThread, "t", spider.Conf.MaxThread, "单文件最大线程")
 }
 
 func main() {

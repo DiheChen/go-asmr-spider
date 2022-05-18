@@ -14,7 +14,7 @@ import (
 	"github.com/DiheChen/go-asmr-spider/utils"
 )
 
-var conf = config.GetConfig()
+var Conf = config.GetConfig()
 
 type ASMRClient struct {
 	Authorization string
@@ -41,8 +41,8 @@ func NewASMRClient(maxTask int, maxThread int) *ASMRClient {
 
 func (ac *ASMRClient) Login() error {
 	payload, err := json.Marshal(map[string]string{
-		"name":     conf.Account,
-		"password": conf.Password,
+		"name":     Conf.Account,
+		"password": Conf.Password,
 	})
 	if err != nil {
 		fmt.Println("登录失败, 配置文件有误。")

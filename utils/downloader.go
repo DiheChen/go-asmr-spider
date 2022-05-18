@@ -78,7 +78,7 @@ func (m *MultiThreadDownloader) initDownload() error {
 		if err != nil {
 			return err
 		}
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		if _, err = file.ReadFrom(s); err != nil {
 			return err
 		}
@@ -100,7 +100,7 @@ func (m *MultiThreadDownloader) initDownload() error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return errors.New("response status unsuccessful: " + strconv.FormatInt(int64(resp.StatusCode), 10))
 	}
@@ -141,10 +141,10 @@ func (m *MultiThreadDownloader) downloadBlocks(block *BlockMetaData) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	_, _ = file.Seek(block.BeginOffset, io.SeekStart)
 	writer := bufio.NewWriter(file)
-	defer writer.Flush()
+	defer func() { _ = writer.Flush() }()
 
 	for k, v := range m.Headers {
 		req.Header.Set(k, v)
@@ -157,7 +157,7 @@ func (m *MultiThreadDownloader) downloadBlocks(block *BlockMetaData) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return errors.New("response status unsuccessful: " + strconv.FormatInt(int64(resp.StatusCode), 10))
 	}
@@ -193,7 +193,7 @@ func SingleThreadDownload(url, path string, headers map[string]string) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return err
@@ -210,7 +210,7 @@ func SingleThreadDownload(url, path string, headers map[string]string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	_, err = file.ReadFrom(resp.Body)
 	if err != nil {
 		return err

@@ -8,14 +8,18 @@ import (
 )
 
 type Config struct {
-	Account  string `json:"account"`
-	Password string `json:"password"`
+	Account   string `json:"account"`
+	Password  string `json:"password"`
+	MaxTask   int    `json:"max_task"`
+	MaxThread int    `json:"max_thread"`
 }
 
 func generateDefaultConfig() {
-	config, err := json.Marshal(map[string]string{
-		"account":  "guest",
-		"password": "guest",
+	config, err := json.Marshal(map[string]interface{}{
+		"account":    "guest",
+		"password":   "guest",
+		"max_task":   1,
+		"max_thread": 1,
 	})
 	if err != nil {
 		fmt.Print("生成默认配置文件失败", err)
