@@ -9,14 +9,12 @@ type WorkerChan chan *MultiThreadDownloader
 
 type WorkerPool struct {
 	sync.WaitGroup
-	WorkerCount int
-	TaskQueue   WorkerChan
+	TaskQueue WorkerChan
 }
 
 func NewWorkerPool(WorkerCount int) *WorkerPool {
 	return &WorkerPool{
-		WorkerCount: WorkerCount,
-		TaskQueue:   make(WorkerChan, WorkerCount),
+		TaskQueue: make(WorkerChan, WorkerCount),
 	}
 }
 
