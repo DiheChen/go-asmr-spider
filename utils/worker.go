@@ -5,63 +5,32 @@ import (
 	"sync"
 )
 
-type TaskQueue chan *MultiThreadDownloader
-
-type Worker struct {
-	TaskChan TaskQueue
-}
+type WorkerChan chan *MultiThreadDownloader
 
 type WorkerPool struct {
 	sync.WaitGroup
-
-	WorkerCount int
-	TaskQueue   TaskQueue
-	WorkerQueue chan TaskQueue
-}
-
-func NewWorker() *Worker {
-	return &Worker{TaskChan: make(chan *MultiThreadDownloader)}
+	TaskQueue WorkerChan
 }
 
 func NewWorkerPool(WorkerCount int) *WorkerPool {
 	return &WorkerPool{
-		WorkerCount: WorkerCount,
-		TaskQueue:   make(TaskQueue),
-		WorkerQueue: make(chan TaskQueue, WorkerCount),
+		TaskQueue: make(WorkerChan, WorkerCount),
 	}
 }
 
-func (w *Worker) Run(wq chan TaskQueue, owner *WorkerPool) {
+func (wp *WorkerPool) Start() {
 	go func() {
-		for {
-			wq <- w.TaskChan
-			select {
-			case t := <-w.TaskChan:
+		for t := range wp.TaskQueue {
+			wp.Add(1)
+			go func(t *MultiThreadDownloader) {
 				err := t.Download()
 				if err != nil {
 					fmt.Printf("下载 %s 时出现错误 %s\n", t.FullPath, err)
 					return
 				}
 				fmt.Println("下载完成", t.FullPath)
-				owner.Done()
-			}
-		}
-	}()
-}
-
-func (wp *WorkerPool) Start() {
-	for i := 0; i < wp.WorkerCount; i++ {
-		w := NewWorker()
-		w.Run(wp.WorkerQueue, wp)
-	}
-	go func() {
-		for {
-			select {
-			case t := <-wp.TaskQueue:
-				wp.Add(1)
-				w := <-wp.WorkerQueue
-				w <- t
-			}
+				wp.Done()
+			}(t)
 		}
 	}()
 }
