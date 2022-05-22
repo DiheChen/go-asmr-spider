@@ -36,5 +36,4 @@ func main() {
 	for _, task := range tasks {
 		c.Download(task)
 	}
-	c.WorkerPool.Wait()
 }
