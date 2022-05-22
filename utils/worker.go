@@ -2,23 +2,23 @@ package utils
 
 import (
 	"fmt"
-	"runtime"
 	"sync"
-	"sync/atomic"
 )
 
 type WorkerChan chan *MultiThreadDownloader
 
 type WorkerPool struct {
 	sync.WaitGroup
-	Limit     int32
+	cond      *sync.Cond
 	TaskQueue WorkerChan
-	Count     int32
+	Limit     int
+	Count     int
 }
 
 func NewWorkerPool(WorkerCount int) *WorkerPool {
 	return &WorkerPool{
-		Limit:     int32(WorkerCount),
+		cond:      sync.NewCond(&sync.Mutex{}),
+		Limit:     WorkerCount,
 		TaskQueue: make(WorkerChan, WorkerCount),
 	}
 }
@@ -26,25 +26,29 @@ func NewWorkerPool(WorkerCount int) *WorkerPool {
 func (wp *WorkerPool) Start() {
 	go func() {
 		for t := range wp.TaskQueue {
-			wp.Add(1)
-			for {
-				if atomic.LoadInt32(&wp.Count) < wp.Limit {
-					break
-				} else {
-					runtime.Gosched()
-				}
+			wp.cond.L.Lock()
+			for wp.Count >= wp.Limit {
+				wp.cond.Wait()
 			}
+			wp.Add(1)
+			wp.cond.L.Unlock()
 			go func(t *MultiThreadDownloader) {
-				atomic.AddInt32(&wp.Count, 1)
-				defer atomic.AddInt32(&wp.Count, -1)
+				wp.cond.L.Lock()
+				wp.Count++
+				wp.cond.L.Unlock()
+				defer func() {
+					wp.cond.L.Lock()
+					wp.Count--
+					wp.Done()
+					wp.cond.Broadcast()
+					wp.cond.L.Unlock()
+				}()
 				err := t.Download()
 				if err != nil {
 					fmt.Printf("下载 %s 时出现错误 %s\n", t.FullPath, err)
-					wp.Done()
 					return
 				}
 				fmt.Println("下载完成", t.FullPath)
-				wp.Done()
 			}(t)
 		}
 	}()
