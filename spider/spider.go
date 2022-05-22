@@ -103,7 +103,7 @@ func (ac *ASMRClient) Download(id string) {
 		return
 	}
 	ac.EnsureDir(tracks, "RJ"+id)
-	fmt.Println("下载完成。")
+	fmt.Println("RJ" + id + "下载任务已添加。")
 }
 
 func (ac *ASMRClient) DownloadFile(url string, dirPath string, fileName string) {
