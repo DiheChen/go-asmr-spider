@@ -36,6 +36,5 @@ func main() {
 	for _, task := range tasks {
 		c.Download(task)
 	}
-	c.WorkerPool.Wait()
 	fmt.Println("所有音声下载完成。")
 }
