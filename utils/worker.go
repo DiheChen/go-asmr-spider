@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"sync"
 )
 
@@ -46,6 +47,7 @@ func (wp *WorkerPool) Start() {
 				err := t.Download()
 				if err != nil {
 					fmt.Printf("下载 %s 时出现错误 %s\n", t.FullPath, err)
+					_ = os.Remove(t.FullPath)
 					return
 				}
 				fmt.Println("下载完成", t.FullPath)
